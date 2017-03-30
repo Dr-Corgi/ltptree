@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from ltp_util import LTPUtil
 
+ltpUtil = LTPUtil()
+
 class Node:
-    def __init__(self, index, relation, head, postag, context, polarity, lchild = None, rchild = None):
+    def __init__(self, index, relation, head, postag, context, polarity, lchild=None, rchild=None):
         self.index = index
         self.head = head
         self.relation = relation
@@ -15,7 +17,7 @@ class Node:
         self.rchild = rchild
 
 class LTPTree:
-    def __init__(self, index, relation, head, postag, context, polarity):
+    def __init__(self, index, relation, head, postag, context, polarity=0.0):
         self.root = Node(index, relation, head, postag, context, polarity)
 
     def addChild(self, child_tree):
@@ -25,7 +27,6 @@ class LTPTree:
             if self.root.lchild == None:
                 self.root.lchild = list()
                 self.root.lchild.append(child_tree)
-                #self.root.lindex = child_tree.root.lindex
             else:
                 added_flag = False
 
@@ -55,7 +56,6 @@ class LTPTree:
             if self.root.rchild == None:
                 self.root.rchild = list()
                 self.root.rchild.append(child_tree)
-                #self.root.rindex = child_tree.root.rindex
             else:
                 added_flag = False
                 for iter in range(len(self.root.rchild))[::-1]:
@@ -84,7 +84,16 @@ class LTPTree:
         return self.root.rindex
 
     def toString(self):
-        return "====================\nhead: "+ str(self.root.head) +"\nindex: "+str(self.root.index)+ "\nrelation: "+self.root.relation+"\npostage: "+self.root.postag+"\ncontext: "+self.root.context+"\npolarity: "+str(self.root.polarity)+"\nlindex: "+str(self.root.lindex)+"\nrindex: "+str(self.root.rindex)+"\n====================\n"
+        return "====================\n" + \
+               "head: " + str(self.root.head) + "\n" + \
+               "index: " + str(self.root.index) + "\n" + \
+               "relation: " + self.root.relation + "\n" + \
+               "postage: " + self.root.postag + "\n" + \
+               "context: " + self.root.context + "\n" + \
+               "polarity: " + str(self.root.polarity) + "\n" + \
+               "lindex: " + str(self.root.lindex) + "\n" + \
+               "rindex: " + str(self.root.rindex) + "\n" + \
+               "====================\n"
 
     def find(self, index):
         if index < self.root.lindex or index > self.root.rindex:
@@ -103,37 +112,22 @@ class LTPTree:
     def inrange(self,index):
         return (self.root.lindex <= index and self.root.rindex >= index)
 
-if __name__ == "__main__":
-    ltpUtil = LTPUtil()
 
-    s = "群众非常赞赏政府打击腐败的举措。"
-
-    words = ltpUtil.Segmentor(s)
+def tree_builder(sentence):
+    words = ltpUtil.Segmentor(sentence)
     postags = ltpUtil.Postagger(words)
     arcs = ltpUtil.Parser(words, postags)
 
-    hx_idnex = -1
+    head_index = -1
+    for i in range(len(arcs)):
+        if arcs[i].head == 0: head_index = i+1
+
+    # 属性polarity默认使用0.0,按需修改
+    tree = LTPTree(head_index, 'HED', 0, postags[head_index-1], words[head_index-1])
 
     for i in range(len(arcs)):
-        if arcs[i].head == 0:
-            hx_idnex = i+1
+        if i+1 != head_index:
+            p_tree = LTPTree(i+1, arcs[i].relation, arcs[i].head, postags[i], words[i])
+            tree.addChild(p_tree)
 
-    #print hx_idnex
-
-    root = LTPTree(hx_idnex, 'HED', 0, postags[hx_idnex-1], words[hx_idnex-1], 0.0)
-    #print root.toString()
-
-    for i in range(len(arcs)):
-        act_index = i+1
-        if act_index != hx_idnex:
-            p_tree = LTPTree(act_index, arcs[i].relation, arcs[i].head, postags[i], words[i], -1.0)
-            #print p_tree.toString()
-            root.addChild(p_tree)
-
-    #print root.toString()
-
-    for i in range(len(arcs)):
-        act_index = i + 1
-        f_tree = root.find(act_index)
-        print f_tree.toString()
-
+    return tree

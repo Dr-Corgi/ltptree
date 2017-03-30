@@ -29,7 +29,6 @@ class LTPUtil:
                 self.__segmentor.load(self.__seg_model_path)
             else:
                 self.__segmentor.load_with_lexicon(self.__seg_model_path, self.__seg_lexicon_path)
-            print "Loaded Segmentor Model Success!"
 
         words = self.__segmentor.segment(sent)
         return words
@@ -42,7 +41,7 @@ class LTPUtil:
                 self.__postagger.load(self.__pos_model_path)
             else:
                 self.__postagger.load_with_lexicon(self.__pos_model_path, self.__seg_lexicon_path)
-            print "Loaded Postagger Model Success!"
+
         postags = None
         if sent != None:
             words = self.Segmentor(sent)
@@ -56,7 +55,7 @@ class LTPUtil:
         if self.__recognizer == None:
             self.__recognizer = pyltp.NamedEntityRecognizer()
             self.__recognizer.load(self.__rec_model_path)
-            print "Loaded Recognizer Model Success!"
+
         if sent != None:
             words = self.Segmentor(sent)
             postags = self.Postagger(words)
@@ -68,7 +67,7 @@ class LTPUtil:
         if self.__parser == None:
             self.__parser = pyltp.Parser()
             self.__parser.load(self.__par_model_path)
-            print "Loaded Parser Model Success!"
+
         if sent != None:
             words = self.Segmentor(sent)
             postags = self.Postagger(words)
@@ -78,84 +77,12 @@ class LTPUtil:
     def __del__(self):
         if self.__segmentor != None:
             self.__segmentor.release()
-            print "Released Segmentor Model Success!"
+
         if self.__postagger != None:
             self.__postagger.release()
-            print "Released Postagger Model Success!"
+
         if self.__recognizer != None:
             self.__recognizer.release()
-            print "Released Recognizer Model Success!"
+
         if self.__parser != None:
             self.__parser.release()
-            print "Released Parser Model Success!"
-
-
-if __name__ == "__main__":
-
-    ltpUtil = LTPUtil()
-
-    sentences = "Python才是世界上最好的编程语言。PHP不是。"
-
-    # test sentence spliter
-    sentList = ltpUtil.SentenceSplitter(sentences)
-    print "========== Test 00 - Spliter ========="
-    for item in sentList:
-        print item
-    print "======================================\n\n"
-
-    sentence = "群众非常赞赏政府打击腐败的举措。"
-
-    # test segment
-    words = ltpUtil.Segmentor(sentence)
-    print "========== Test 01 - Segment ========="
-    for item in words:
-        print item
-    print "======================================\n\n"
-
-    # test postage 01
-    postags = ltpUtil.Postagger(words)
-    print "========== Test 02 - POS words ========="
-    pList = list(postags)
-    for item in pList:
-        print item
-    print "========================================\n\n"
-
-    # test postage 02
-    postags = ltpUtil.Postagger(sent=sentence)
-    print "========== Test 03 - POS sents ========="
-    pList = list(postags)
-    for item in pList:
-        print item
-    print "========================================\n\n"
-
-    # test named entity recognizer 01
-    ner = ltpUtil.NamedEntityRecognizer(words, postags)
-    print "========== Test 04 - NER words ========="
-    nList = list(ner)
-    for item in nList:
-        print item
-    print "========================================\n\n"
-
-    # test named entity recognizer 02
-    ner = ltpUtil.NamedEntityRecognizer(sent=sentence)
-    print "========== Test 05 - NER sents ========="
-    nList = list(ner)
-    for item in nList:
-        print item
-    print "========================================\n\n"
-
-    # test parser 01
-    arcs = ltpUtil.Parser(words, postags)
-    print "========== Test 06 - PAR words ========="
-    aList = list(arcs)
-    for item in aList:
-        print str(item.head) + ": " + item.relation
-    print "========================================\n\n"
-
-    # test parser 02
-    arcs = ltpUtil.Parser(sent = sentence)
-    print "========== Test 07 - PAR sents ========="
-    aList = list(arcs)
-    for item in aList:
-        print str(item.head) + ": " + item.relation
-    print "========================================\n\n"
