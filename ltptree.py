@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ltp_util import LTPUtil
+from ltputil import LTPUtil
 
 ltpUtil = LTPUtil()
 

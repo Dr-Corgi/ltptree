@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from ltptree import tree_builder
-from ltp_util import LTPUtil
+from ltputil import LTPUtil
 
 def test_ltp_util():
 
